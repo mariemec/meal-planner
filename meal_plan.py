@@ -1,48 +1,45 @@
 import requests
-import json
 
 def get_grocery_deals(zip_code):
-    # 1. Define the search parameters
-    # Flipp uses a specific 'backflipp' endpoint for searches
     url = "https://backflipp.wishabi.com/flipp/items/search"
+    # These keywords force Flipp to look past the "Featured" page
+    categories = ["meat", "produce", "dairy", "bakery", "pantry"]
+    all_deals = []
+    
+    headers = {"User-Agent": "Mozilla/5.0"}
 
-    params = {
-        "postal_code": zip_code,
-        "q": "groceries",  # Broad search for all grocery items
-        "locale": "en-us"
-    }
+    for cat in categories:
+        params = {
+            "postal_code": zip_code,
+            "q": cat,
+            "locale": "en-us"
+        }
+        
+        try:
+            response = requests.get(url, params=params, headers=headers)
+            data = response.json()
+            
+            for item in data.get('items', []):
+                # Clean up the data
+                name = item.get('name')
+                price = item.get('current_price')
+                merchant = item.get('merchant_name')
+                
+                if price and name:
+                    all_deals.append({
+                        "store": merchant,
+                        "item": name,
+                        "price": float(price),
+                        "category": cat
+                    })
+        except Exception as e:
+            print(f"Error fetching {cat}: {e}")
 
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-    }
+    # Remove duplicates (sometimes an item is in two categories)
+    unique_deals = {f"{d['store']}{d['item']}": d for d in all_deals}.values()
+    return list(unique_deals)
 
-    try:
-        response = requests.get(url, params=params, headers=headers)
-        response.raise_for_status()
-        data = response.json()
-
-        deals = []
-        for item in data.get('items', []):
-            # We filter for items that actually have a price listed
-            if item.get('current_price'):
-                deal = {
-                    "store": item.get('merchant_name'),
-                    "item": item.get('name'),
-                    "price": float(item.get('current_price')),
-                    "unit": item.get('unit_standard_name'), # e.g., 'lb' or 'oz'
-                    "valid_until": item.get('valid_to')
-                }
-                deals.append(deal)
-
-        return deals
-
-    except Exception as e:
-        print(f"Error fetching deals: {e}")
-        return []
-
-# Execute for your area
-zip_94306_deals = get_grocery_deals("94306")
-
-# Print the first 5 deals to verify
-for d in zip_94306_deals[:5]:
-    print(f"[{d['store']}] {d['item']} - ${d['price']}")
+# Test run
+deals = get_grocery_deals("94306")
+for d in deals[:10]: # Print top 10 to check variety
+    print(f"[{d['category'].upper()}] {d['store']}: {d['item']} - ${d['price']}")
