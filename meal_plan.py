@@ -63,15 +63,14 @@ def get_flyer_items(flyer_id: int):
     return response.json()
 
 def main():
-    # Get postal code from user
-    postal_code = os.environ.get('ZIP_CODE')
-    if not postal_code:
+    zipcode = os.environ.get("ZIP_CODE")
+    if zipcode is None:
         return print('Please set the ZIP_CODE environment variable.')
 
-    print(f'\nFetching flyers for postal code: {postal_code}')
+    print(f'\nFetching flyers for postal code: {zipcode}')
     
     # Get grocery flyers with their merchant names
-    grocery_flyers = get_grocery_flyer_id(postal_code)
+    grocery_flyers = get_grocery_flyer_id(zipcode)
     
     if not grocery_flyers:
         print('No grocery flyers found for this postal code.')

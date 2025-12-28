@@ -5,10 +5,11 @@ from google.genai import types
 
 def generate_plan():
     client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
-    
-    csv_file = 'flyer_items_94306.csv'
+    zipcode = os.environ.get("ZIP_CODE")
+
+    csv_file = f'flyer_items_{zipcode}.csv'
     if not os.path.exists(csv_file):
-        print("CSV not found!")
+        print(f"CSV {csv_file} not found!")
         return
 
     df = pd.read_csv(csv_file)
