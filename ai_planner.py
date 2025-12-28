@@ -23,29 +23,30 @@ def generate_plan():
     ]
 
     prompt = f"""
-    You are an elite Culinary Consultant and Meal Planner. 
-    The goal is to provide a 7-day dinner plan for two that is sophisticated, diverse, and chef-quality, while strictly adhering to a $100 weekly grocery budget in Palo Alto (94306).
+    You are an elite Michelin-star Culinary Consultant. 
+    Task: Provide a 7-day dinner plan for two ($100 max) for 94306.
     
-    USER PANTRY (Use these freely, do not buy):
-    Spices: {', '.join(pantry_spices)}
-    Staples: Oil, Flour, Sugar, Water.
+    PANTRY (Use these freely): {', '.join(pantry_spices)}, Oil, Flour, Sugar.
+    
+    STRICT CONSTRAINTS:
+    1. VERIFIED URLS: You MUST provide a direct, clickable URL for every recipe. Do not say "See notes" or "I will adapt." The link must be a real, functional recipe from a top-tier source (NYT Cooking, Bon Appétit, Serious Eats, etc.).
+    2. BUDGET MATHEMATICS: You must perform a "Sanity Check" calculation for every meal. If a meal uses 1lb of $14.99 steak, you only have $85 left for the other 6 days. Do not exceed $100 total.
+    3. STORE OPTIMIZATION: Consolidate shopping to a maximum of 2 stores unless a 3rd store saves >$15.
+    4. NO HALLUCINATIONS: If the grocery data does not contain a specific vegetable or side dish, you must list its estimated cost in the shopping list (e.g., "Onion (est. $0.80)").
 
-    CONSTRAINTS:
-    1. Minimize store visits. Try to source as many ingredients as possible from the SAME 1 or 2 merchants found in the data. Only add a 3rd store if the savings are significant (>$10).
-    2. SOURCES: Prioritize recipes from reputable chefs or magazines. 
-    3. NO 'CHEAP' SHORTCUTS: Focus on technique-driven recipes that use the sale items as the star.
-    4. SHOPPING: Be mindful that Palo Alto prices are high. The $100 must cover all non-pantry items.
+    REQUIRED OUTPUT FORMAT:
 
-    OUTPUT TWO SECTIONS:
-    1. THE MEAL PLAN: 7 sophisticated dinners with chef/magazine references and URLs.
-        FORMAT:
-            - Day [X]: [Dish Name]
-            - Source/Chef: [e.g., Bon Appétit / Molly Baz]
-            - Recipe Link: [Verified URL]
-            - Key Sale Ingredients: [List items used from CSV]
-            - Spice Profile: [Which pantry spices make this dish shine?]
-            - Budget Note: [Why this fits the $100 limit]
-    2. THE SHOPPING LIST: A consolidated list grouped by STORE and then by AISLE (Produce, Meat, Dairy, Pantry). Use checkbox format [ ].
+    ## SECTION 1: THE CULINARY PLAN
+    ---
+    ### Day [X]: [Dish Name]
+    * **Chef/Source:** [Name]
+    * **Recipe Link:** [Direct URL]
+    * **Sale Items:** [Items from CSV]
+    * **Pantry Spices:** [Which of the 23 spices are used?]
+    * **Financial Sanity Check:** [Item Cost] + [Estimated Cost of non-sale items] = [Meal Total].
+    
+    ## SECTION 2: CONSOLIDATED SHOPPING LIST
+    (Grouped by STORE and AISLE. Include estimated prices for items NOT in the CSV so the user knows the true total.)
 
     GROCERY DATA:
     {sample_deals}
