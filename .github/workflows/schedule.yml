@@ -1,0 +1,24 @@
+name: Weekly Grocery Run
+on:
+  schedule:
+    # This runs at 8:00 AM every Sunday (UTC time)
+    - cron: '0 8 * * 0'
+  workflow_dispatch: # This allows you to run it manually with a button
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/checkout@v3
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run Scraper
+        run: python bot.py
