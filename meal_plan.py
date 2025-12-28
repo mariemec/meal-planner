@@ -1,3 +1,4 @@
+import os
 import requests, json, random
 import pandas as pd
 
@@ -63,7 +64,9 @@ def get_flyer_items(flyer_id: int):
 
 def main():
     # Get postal code from user
-    postal_code = '94306'
+    postal_code = os.environ.get('ZIP_CODE')
+    if not postal_code:
+        return print('Please set the ZIP_CODE environment variable.')
 
     print(f'\nFetching flyers for postal code: {postal_code}')
     
