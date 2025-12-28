@@ -1,9 +1,10 @@
+import os
 import requests, json, random
 import pandas as pd
 
 FLYERS = 'https://flyers-ng.flippback.com/api/flipp/data?locale=en&postal_code={}&sid={}'
 FLYER_ITEMS = 'https://flyers-ng.flippback.com/api/flipp/flyers/{}/flyer_items?locale=en&sid={}'
-GROCERY_STORES = {'No Frills', 'FreshCo', 'Walmart', 'Loblaws'}
+GROCERY_STORES = {} # Enter known grocery store names here if needed
 
 
 def generate_sid():
@@ -62,13 +63,14 @@ def get_flyer_items(flyer_id: int):
     return response.json()
 
 def main():
-    # Get postal code from user
-    postal_code = '94306'
+    zipcode = os.environ.get("ZIP_CODE")
+    if zipcode is None:
+        return print('Please set the ZIP_CODE environment variable.')
 
-    print(f'\nFetching flyers for postal code: {postal_code}')
+    print(f'\nFetching flyers for postal code: {zipcode}')
     
     # Get grocery flyers with their merchant names
-    grocery_flyers = get_grocery_flyer_id(postal_code)
+    grocery_flyers = get_grocery_flyer_id(zipcode)
     
     if not grocery_flyers:
         print('No grocery flyers found for this postal code.')
@@ -96,7 +98,7 @@ def main():
     
     if csv_data:
         df = pd.DataFrame(csv_data)
-        filename = f'flyer_items_{postal_code}.csv'
+        filename = f'flyer_items.csv'
         df.to_csv(filename, index=False)
         print(f'\nSuccessfully saved {len(csv_data)} items to {filename}')
     else:
