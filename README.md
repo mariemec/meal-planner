@@ -4,7 +4,7 @@ An automated meal planning pipeline that scrapes local grocery flyers, analyzes 
 
 ## 🚀 How It Works
 
-1.  **`meal_plan.py`**: Scrapes the Flipp API for a specific zip code. It identifies grocery flyers (Sprouts, Lucky, Safeway, etc.), extracts every line item, and saves them into a structured `flyer_items_{zipcode}.csv`.
+1.  **`flyer_scraper.py`**: Scrapes the Flipp API for a specific zip code. It identifies grocery flyers (Sprouts, Lucky, Safeway, etc.), extracts every line item, and saves them into a structured `flyer_items.csv`.
 2.  **`ai_planner.py`**: 
     * Reads the CSV data.
     * Cross-references deals with your specific **pantry inventory**.

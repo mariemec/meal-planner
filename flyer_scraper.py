@@ -4,7 +4,7 @@ import pandas as pd
 
 FLYERS = 'https://flyers-ng.flippback.com/api/flipp/data?locale=en&postal_code={}&sid={}'
 FLYER_ITEMS = 'https://flyers-ng.flippback.com/api/flipp/flyers/{}/flyer_items?locale=en&sid={}'
-GROCERY_STORES = {'No Frills', 'FreshCo', 'Walmart', 'Loblaws'}
+GROCERY_STORES = {} # Enter known grocery store names here if needed
 
 
 def generate_sid():
@@ -98,7 +98,7 @@ def main():
     
     if csv_data:
         df = pd.DataFrame(csv_data)
-        filename = f'flyer_items_{postal_code}.csv'
+        filename = f'flyer_items.csv'
         df.to_csv(filename, index=False)
         print(f'\nSuccessfully saved {len(csv_data)} items to {filename}')
     else:

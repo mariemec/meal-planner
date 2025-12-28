@@ -25,8 +25,9 @@ jobs:
       - name: Run Scraper and Planner
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ZIP_CODE: ${{ secrets.ZIP_CODE }}
         run: |
-          python meal_plan.py
+          python flyer_scraper.py
           python ai_planner.py
 
       - name: Upload Grocery Data and Plan
@@ -34,5 +35,5 @@ jobs:
         with:
           name: grocery-results
           path: |
-            flyer_items_94306.csv
+            flyer_items.csv
             meal_plan.txt

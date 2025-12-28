@@ -5,9 +5,8 @@ from google.genai import types
 
 def generate_plan():
     client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
-    zipcode = os.environ.get("ZIP_CODE")
 
-    csv_file = f'flyer_items_{zipcode}.csv'
+    csv_file = f'flyer_items.csv'
     if not os.path.exists(csv_file):
         print(f"CSV {csv_file} not found!")
         return
@@ -25,7 +24,7 @@ def generate_plan():
 
     prompt = f"""
     You are an elite Michelin-star Culinary Consultant. 
-    Task: Provide a 7-day dinner plan for two ($100 max) for 94306.
+    Task: Provide a 7-day dinner plan for two ($100 max).
     
     PANTRY (Use these freely): {', '.join(pantry_spices)}, Oil, Flour, Sugar.
     
@@ -43,7 +42,8 @@ def generate_plan():
     * **Chef/Source:** [Name]
     * **Recipe Link:** [Direct URL]
     * **Sale Items:** [Items from CSV]
-    * **Pantry Spices:** [Which of the 23 spices are used?]
+    * **Non-Sale Items:** [Items NOT in CSV with estimated prices]
+    * **Pantry Items:** [Items from pantry list, no cost]
     * **Financial Sanity Check:** [Item Cost] + [Estimated Cost of non-sale items] = [Meal Total].
     
     ## SECTION 2: CONSOLIDATED SHOPPING LIST
