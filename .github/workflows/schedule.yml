@@ -21,4 +21,4 @@ jobs:
         run: pip install requests
 
       - name: Run Scraper
-        run: python bot.py
+        run: python meal_plan.py
