@@ -1,9 +1,12 @@
 import os
+import smtplib
 import pandas as pd
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from google import genai
 from google.genai import types
 
-def generate_plan():
+def generate_meal_plan():
     client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
     csv_file = f'flyer_items.csv'
@@ -67,5 +70,34 @@ def generate_plan():
     with open("meal_plan.txt", "w") as f:
         f.write(response.text)
 
+    return response.text
+
+def send_email_notification(content):
+    sender = os.environ.get("EMAIL_SENDER")
+    password = os.environ.get("EMAIL_PASSWORD")
+    receiver = os.environ.get("EMAIL_RECEIVER")
+    
+    msg = MIMEMultipart()
+    msg['Subject'] = "🍽 Weekly Grocery Plan"
+    msg['From'] = f"Grocery Bot <{sender}>"
+    msg['To'] = receiver
+    msg.attach(MIMEText(content, 'plain'))
+    
+    with smtplib.SMTP('smtp.gmail.com', 587) as server:
+        server.starttls()
+        server.login(sender, password)
+        server.send_message(msg)
+
 if __name__ == "__main__":
-    generate_plan()
+    # 1. Load Data
+    data = pd.read_csv('flyer_items.csv').head(200).to_string()
+    
+    # 2. Run AI
+    print("Generating plan...")
+    meal_plan = generate_meal_plan()
+    
+    # 3. Deliver Results
+    print("Sending email...")
+    send_email_notification(meal_plan)
+    
+    print("All done!")
