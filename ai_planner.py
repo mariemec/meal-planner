@@ -5,6 +5,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from google import genai
 from google.genai import types
+import markdown
 
 def generate_meal_plan():
     client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
@@ -37,20 +38,37 @@ def generate_meal_plan():
     3. STORE OPTIMIZATION: Consolidate shopping to a maximum of 2 stores unless a 3rd store saves >$15.
     4. NO HALLUCINATIONS: If the grocery data does not contain a specific vegetable or side dish, you must list its estimated cost in the shopping list (e.g., "Onion (est. $0.80)").
 
-    REQUIRED OUTPUT FORMAT:
+    REQUIRED OUTPUT FORMAT (Use Markdown):
 
-    ## SECTION 1: THE CULINARY PLAN
-    ---
-    ### Day [X]: [Dish Name]
-    * **Chef/Source:** [Name]
-    * **Recipe Link:** [Direct URL]
-    * **Sale Items:** [Items from CSV]
-    * **Non-Sale Items:** [Items NOT in CSV with estimated prices]
-    * **Pantry Items:** [Items from pantry list, no cost]
-    * **Financial Sanity Check:** [Item Cost] + [Estimated Cost of non-sale items] = [Meal Total].
+    # 🍽 WEEKLY CULINARY PLAN
     
-    ## SECTION 2: CONSOLIDATED SHOPPING LIST
-    (Grouped by STORE and AISLE. Include estimated prices for items NOT in the CSV so the user knows the true total.)
+    ## 📊 BUDGET OVERVIEW
+    * **Total Estimated Spend:** $[Total]
+    * **Stores:** [Store names]
+    
+    | Day | Dish | Recipe Link | Est. Cost |
+    | :--- | :--- | :--- | :--- |
+    | 1 | [Name] | [Link] | $[Cost] |
+    | ... | ... | ... | ... |
+
+    ---
+
+    ## 👨‍🍳 DAILY DETAILS
+    
+    ### 🗓 Day [X]: [Dish Name]
+    * **Recipe:** [Direct URL]
+    * **Grocery Items:** [Items + Prices]
+    * **Pantry Items:** [Spices used]
+    * **Cost Breakdown:** [Calculation]
+    
+    ---
+
+    ## 🛒 CONSOLIDATED SHOPPING LIST
+    
+    ### [STORE NAME]
+    * **[Aisle Name]**
+        - [ ] Item 1 ($Price)
+        - [ ] Item 2 ($Price)
 
     GROCERY DATA:
     {sample_deals}
@@ -72,21 +90,43 @@ def generate_meal_plan():
 
     return response.text
 
+
 def send_email_notification(content):
     sender = os.environ.get("EMAIL_SENDER")
     password = os.environ.get("EMAIL_PASSWORD")
     receiver = os.environ.get("EMAIL_RECEIVER")
     
     msg = MIMEMultipart()
-    msg['Subject'] = "🍽 Weekly Grocery Plan"
-    msg['From'] = f"Grocery Bot <{sender}>"
+    msg['Subject'] = "🍽 Your Weekly Grocery & Meal Plan"
+    msg['From'] = f"Chef Gemini <{sender}>"
     msg['To'] = receiver
-    msg.attach(MIMEText(content, 'plain'))
+
+    # Convert Markdown to HTML for a professional email look
+    html_content = f"""
+    <html>
+      <head>
+        <style>
+          body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+          table {{ border-collapse: collapse; width: 100%; margin-bottom: 20px; }}
+          th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+          th {{ background-color: #f2f2f2; }}
+          h1 {{ color: #2e7d32; }}
+          h2 {{ border-bottom: 2px solid #2e7d32; padding-bottom: 5px; }}
+        </style>
+      </head>
+      <body>
+        {markdown.markdown(content, extensions=['tables'])}
+      </body>
+    </html>
+    """
+    
+    msg.attach(MIMEText(html_content, 'html'))
     
     with smtplib.SMTP('smtp.gmail.com', 587) as server:
         server.starttls()
         server.login(sender, password)
         server.send_message(msg)
+
 
 if __name__ == "__main__":
     # 1. Load Data
