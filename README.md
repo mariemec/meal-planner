@@ -28,5 +28,5 @@ To run this via GitHub Actions, add the following secret in **Settings > Secrets
   └── schedule.yml          # The automation triggers
 ai_planner.py               # AI logic and recipe matching
 meal_plan.py                # Flipp API scraper
-flyer_items_{zipcode}.csv   # Generated grocery data (auto-generated)
-shopping_list.md            # Final output (auto-generated)
+flyer_items.csv             # Generated grocery data (auto-generated)
+meal_plan.txt               # Final output (auto-generated)
